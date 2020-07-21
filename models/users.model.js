@@ -16,10 +16,17 @@ const schema = new Schema({
         type: {
             type: String
         },
-        status: String
+        status:{
+            type: String
+        },
+        num: {
+            type: Number
+        },
+        lifetime: Boolean,
+        plan: String
     },
 
-    paymentIds: [String],
+    bills: [String],
 
     details: {
         title: String,
@@ -28,7 +35,7 @@ const schema = new Schema({
         ic: String,
         nationality: String,
         dob: String,
-        phone: String,
+        phoneNum: String,
 
         address: {
             lines: [String],
@@ -91,4 +98,3 @@ const schema = new Schema({
 });
 
 mongoose.model('User', schema);
-

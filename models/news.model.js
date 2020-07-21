@@ -10,9 +10,10 @@ const schema = new Schema({
 
     content: String,
 
+    author: String,
+
     views: Number,
-    datePublish: Number,
-    author: String
+    datePublish: Number
 });
 
 mongoose.model('News', schema);

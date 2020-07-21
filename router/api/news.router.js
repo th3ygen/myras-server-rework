@@ -1,6 +1,6 @@
 const root = require('app-root-path');
 const router = require('express').Router();
-const controller = require(root + '/controller/news.controller');
+const controller = require(root + '/controllers/news.controller');
 
 router.post('/publish', [
     controller.publish

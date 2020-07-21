@@ -1,0 +1,2 @@
+<p><span style="color: rgb(255, 255, 102); background-color: rgb(230, 0, 0);">Align left</span></p><p class="ql-align-center"><a href="google.com" rel="noopener noreferrer" target="_blank">Align center</a></p><p class="ql-align-right"><u>Align right</u></p><pre class="ql-syntax" spellcheck="false">console.log('Hello world');
+</pre><p><br></p>

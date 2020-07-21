@@ -7,10 +7,10 @@ let tokenless = [];
 function secure() {
     return expressJwt({ secret: SECRET }).unless({
        path: tokenless
-    })
+    });
 };
 
 module.exports = {
     secure,
-    path
+    tokenless
 }

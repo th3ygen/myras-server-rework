@@ -1,5 +1,5 @@
 function userCredential(req, res, next) {
-    const { body: { user: { username, password } } } = req;
+    const { body: { username, password }  } = req;
     
     if (!username) {
         return res.status(400).json({
@@ -17,6 +17,12 @@ function userCredential(req, res, next) {
 }
 
 function register(req, res, next) {
+    if (!req.body.user) {
+        return res.status(400).json({
+            'message': 'user credential not found'
+        });
+    }
+
     const { body: { user: { username, password, email } } } = req;
 
     if (!username) {

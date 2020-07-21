@@ -10,7 +10,6 @@ passport.use(new LocalStrategy( (username, password, done) => {
         if (!user || bcrypt.compareSync(user.hash, password)) {
             return done(null, false, { message: 'username or password doesn\'t match ' })
         }
-
         return done(null, user);
     }).catch(done);
 }));

@@ -8,39 +8,47 @@ const chalk = require('chalk');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-const app = express();
+(async (app) => {
+    app.use(cors());
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
 
-let port = 80;
-if (process.env.NODE_ENV === 'development') {
-    app.use(errorhandler({ log: (err, str, req) => {
-        notifier.notify({
-          title: 'Error in ' + req.method + ' ' + req.url,
-          message: str
-        })
-    } }));
-    port = 8080
-}
+    // serve static angular files
+    app.use('/', express.static('./public'));
 
-// mongodb models
-require('./models/users.model');
-require('./models/payments.model');
-require('./models/news.model');
-require('./models/event.model');
+    // contents
+    app.use('/content', express.static('./content'));
 
-// services
-require('./services/mongoose.service');
-require('./services/passport.service');
+    let port = 80;
+    if (process.env.NODE_ENV === 'development') {
+        app.use(errorhandler({ log: (err, str, req) => {
+            notifier.notify({
+              title: 'Error in ' + req.method + ' ' + req.url,
+              message: str
+            })
+        } }));
+        port = 8080
+    }
 
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+    // mongodb models
+    require('./models/users.model');
+    require('./models/bill.model');
+    require('./models/news.model');
+    require('./models/event.model');
+    require('./models/content.model');
 
-app.use(require('./router'));
+    // services
+    await require('./services/mongoose.service').init();
+    
+    require('./services/passport.service');
 
-// server static angular files
-app.use('/', express.static('./public'));
+    app.use(require('./router'));
 
-app.listen(port, () => {
-    console.log(chalk.green('[APP]'), `listening to port ${port}`);
+    app.listen(port, () => {
+        console.log(chalk.green('[APP]'), `listening to port ${port}`);
+    });
+})(express());
 
-});
+
+
+

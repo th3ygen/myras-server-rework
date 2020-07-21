@@ -5,16 +5,22 @@ const Schema = mongoose.Schema;
 const schema = new Schema({
     title: String,
     description: String,
+    imgPath: String,
     cluster: String,
-    imgURL: String,
+    keywords: String,
+    // video, category, 
+    contentPath: String,
 
-    content: String,
+    organizer: String,
 
     startDate: Number,
     endDate: Number,
 
-    organizer: String,
-    views: Number
+    views: Number,
+    datePublish: Number,
+    dateEdit: Number,
+
+    visible: Boolean
 });
 
 mongoose.model('Event', schema);
