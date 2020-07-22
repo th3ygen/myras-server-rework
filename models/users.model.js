@@ -19,6 +19,9 @@ const schema = new Schema({
         status:{
             type: String
         },
+        enabled: {
+            type: Boolean
+        },
         num: {
             type: Number
         },
@@ -94,7 +97,10 @@ const schema = new Schema({
                 phoneNum: String
             }
         },
-    }
+    },
+
+    lastOnline: Number,
+    dateCreated: Number,
 });
 
 mongoose.model('User', schema);

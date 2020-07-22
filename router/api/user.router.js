@@ -13,9 +13,21 @@ router.post('/register', [
     controller.register
 ]);
 
-router.get('/:id', [
-    controller.get
+router.get('/getAll', [
+    controller.getAll
 ]);
+
+router.get('/disable', [
+    controller.disableUser
+]);
+
+router.get('/delete', [
+    controller.deleteUser
+]);
+
+/* router.get('/:id', [
+    controller.get
+]); */
 
 router.get('/currentUser/info', [
     controller.userGetUser

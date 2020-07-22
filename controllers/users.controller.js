@@ -35,6 +35,9 @@ async function authenticate(req, res, next) {
         return res.json({ message: 'incorrect username or password' }).status(401);
     }
 
+    user.lastOnline = Date.now();
+    await user.save();
+
     const token = jwt.sign({
         userid: user._id,
         role: user.role
@@ -78,8 +81,7 @@ async function register(req, res, next) {
     let allNum, num, prev;
 
     const users = await User.find(
-        { role: 'user' },
-        ['member.id', 'member.num']).sort({ 'member.num': 1 });
+        {}, ['member.id', 'member.num']).sort({ 'member.num': 1 });
     allNum = users.map(u => {
         return u.member.num;
     });
@@ -114,16 +116,6 @@ async function register(req, res, next) {
     if (user.member.lifetime && user.member.plan !== 'student') {
         plan += ' lifetime';
     }
-
-    console.log({
-        collection_id: config.api.billplz.collection_id,
-        description: `MyRAS membership fee`,
-        email: user.email,
-        name: user.details.fullname,
-        amount: config.bill.member[plan] * 100,
-        redirect_url: 'http://localhost:4200/user/purchase/invoices',
-        callback_url: 'http://localhost:8989/payment/callback'
-    });
 
     const billplz = await axios_client.post(config.api.billplz.post.createBill, {
         collection_id: config.api.billplz.collection_id,
@@ -171,7 +163,11 @@ async function register(req, res, next) {
     user.member.status = 'Inactive';
     user.member.type = 'annual'
     user.member.num = num;
+    user.member.enabled = true;
     user.bills = [newBill._id];
+
+    user.lastOnline = Date.now();
+    user.dateCreated = Date.now();
 
     await user.save();
 
@@ -189,15 +185,64 @@ function edit(req, res, next) {
     });
 }
 
-function getAll(req, res, next) {
-    return User.find({}, (err, result) => {
-        if (err) {
-            return res.json({ message: 'error getting users: ' + err }).status(500);
-        }
+async function getAll(req, res, next) {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], SECRET);
 
-        return res.json({ result }).status(200);
-    });
+    if (token.role !== 'admin') {
+        return res.json({ message: 'access denied' }).status(401);
+    }
+
+    const users = await User.find({ role: 'user' });
+
+    for (const u of users) {
+        delete u.hash;
+    }
+
+    return res.json({ users }).status(200);
 }
+
+async function disableUser(req, res, next) {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], SECRET);
+
+    if (token.role !== 'admin') {
+        return res.json({ message: 'access denied' }).status(401);
+    }
+
+    const { query: { id, flag } } = req;
+
+    const user = await User.findOne({ 'member.id': id });
+
+    if (!user) {
+        return res.json({ message: 'no user found' }).status(402);
+    }
+
+    user.member.enabled = (flag === 'true');
+
+    await user.save();
+
+    return res.json({ user }).status(200);
+}
+
+async function deleteUser(req, res, next) {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], SECRET);
+
+    if (token.role !== 'admin') {
+        return res.json({ message: 'access denied' }).status(401);
+    }
+
+    const { query: { id } } = req;
+
+    const user = await User.findOne({ 'member.id': id });
+
+    if (!user) {
+        return res.json({ message: 'no user found' }).status(402);
+    }
+
+    await user.remove();
+
+    return res.json({ message: 'user deleted' }).status(200);
+}
+
 
 function get(req, res, next) {
     const { params: { id } } = req;
@@ -322,8 +367,11 @@ module.exports = {
     authenticate,
     register,
     get,
+    getAll,
     userGetUser,
     userGetBills,
     updateUserInfo,
-    updateUserPW
+    updateUserPW,
+    disableUser,
+    deleteUser
 }
